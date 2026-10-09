@@ -199,21 +199,48 @@
   .note { color: var(--muted); font-size: 13px; margin: 14px 0 2px; min-height: 1.2em; }
   .link { background: none; border: 0; color: var(--muted); font-size: 13px; text-decoration: underline; cursor: pointer; padding: 6px; }
 
-  .floaters { position: fixed; inset: 0; pointer-events: none; z-index: 2; overflow: hidden; display: none; }
-  body.inviting .floaters { display: block; }
-  .floaters span { position: absolute; bottom: -40px; color: #ff4a5d; opacity: 0; animation: floatUp linear infinite; }
-  @keyframes floatUp {
-    0% { transform: translate(0, 0) rotate(0); opacity: 0; }
-    12% { opacity: 0.45; }
-    85% { opacity: 0.25; }
-    100% { transform: translate(var(--dx), -112vh) rotate(var(--rot)); opacity: 0; }
+  .aside {
+    display: inline-block; font: 600 12px/1.3 system-ui, -apple-system, sans-serif;
+    color: #ff7d8b; opacity: 0.92; transform: rotate(-4deg);
   }
+  .actions.has-aside { padding-bottom: 24px; }
+  .no-wrap { position: relative; display: inline-flex; }
+  .no-wrap .aside { position: absolute; top: calc(100% + 8px); right: -4px; white-space: nowrap; }
+  .side-wrap { position: relative; display: inline-flex; }
+  .side-wrap .aside { position: absolute; right: calc(100% + 12px); top: 50%; width: 104px;
+                      text-align: right; transform: translateY(-50%) rotate(-4deg); }
+  .aside-row { display: flex; justify-content: flex-end; margin: 0 8px 10px; }
   .burst { position: fixed; z-index: 7; pointer-events: none; color: #ff4a5d; line-height: 1; }
 
   @media (prefers-reduced-motion: reduce) {
     .step.active { animation: none; }
-    body.inviting .floaters { display: none; }
   }
+
+  /* ---------- start gate & sound ---------- */
+  .gate {
+    position: fixed; inset: 0; z-index: 20;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg); cursor: pointer; -webkit-tap-highlight-color: transparent;
+    transition: opacity 0.9s ease;
+  }
+  .gate.gone { opacity: 0; pointer-events: none; }
+  .gate:focus-visible { outline: none; }
+  .gate-text {
+    font-family: var(--display); font-weight: 500; font-size: 22px; color: #ff4a5d;
+    text-shadow: 0 0 16px rgba(255, 52, 76, 0.55);
+    animation: gatePulse 2.2s ease-in-out infinite;
+  }
+  @keyframes gatePulse { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.08); opacity: 1; } }
+  .sound {
+    position: fixed; z-index: 9; right: 12px; top: calc(env(safe-area-inset-top, 0px) + 10px);
+    width: 40px; height: 40px; border-radius: 50%; padding: 0;
+    border: 1px solid var(--line); background: rgba(14, 3, 6, 0.85); color: #fff; font-size: 17px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .sound[hidden] { display: none; }
+  .sound:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+  @media (prefers-reduced-motion: reduce) { .gate-text { animation: none; } }
 </style>
 </head>
 <body>
@@ -221,7 +248,12 @@
   <div id="stage"><div class="heart" id="heart"></div></div>
 </div>
 
-<div class="floaters" id="floaters" aria-hidden="true"></div>
+<div class="gate" id="gate" role="button" tabindex="0" aria-label="Սկսել">
+  <span class="gate-text">Սեխմի էկռանին)</span>
+</div>
+<button class="sound" id="soundBtn" type="button" aria-label="Ձայն" aria-pressed="false" hidden>🔊</button>
+<audio id="music" src="music.mp3" loop preload="auto" playsinline></audio>
+
 
 <div class="invite" id="invite" aria-live="polite">
   <div class="card" id="card">
@@ -229,15 +261,15 @@
 
     <section class="step" data-step="ask">
       <h1>Գնա՞նք մի տեղ 😏</h1>
-      <div class="actions">
+      <div class="actions has-aside">
         <button class="btn primary" id="yesBtn" type="button">Այո 😏</button>
-        <button class="btn ghost" id="noBtn" type="button">Ոչ</button>
+        <span class="no-wrap"><button class="btn ghost" id="noBtn" type="button">Ոչ</button><span class="aside" aria-hidden="true">Բայց թաքուն🤫</span></span>
       </div>
     </section>
 
     <section class="step" data-step="sure">
       <h1>Ֆսյո էլ հետդարձ չկա 😈</h1>
-      <div class="actions"><button class="btn primary" id="sureBtn" type="button">Ավելի լավ</button></div>
+      <div class="actions"><span class="side-wrap"><span class="aside" aria-hidden="true">Ես դու ու Երևանը🫀</span><button class="btn primary" id="sureBtn" type="button">Ավելի լավ</button></span></div>
     </section>
 
     <section class="step" data-step="when">
@@ -245,6 +277,7 @@
       <label class="field"><span>Ամսաթիվ</span><input type="date" id="dateIn"></label>
       <label class="field"><span>Ժամ</span><input type="time" id="timeIn"></label>
       <p class="err" id="whenErr" role="alert"></p>
+      <div class="aside-row"><span class="aside" aria-hidden="true">Խմելու ենք գիտես չէ</span></div>
       <div class="actions"><button class="btn primary" id="whenBtn" type="button">Գողացի😈</button></div>
     </section>
 
@@ -716,9 +749,18 @@
     }, 200);
   }
 
-  function start() { measureAll(); build(false); }
-  window.addEventListener('resize', onResize);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(start); else start();
+  // The heart starts drawing only after the tap on the start screen (music starts on the same tap).
+  var fontsReady = !(document.fonts && document.fonts.ready);
+  var userStarted = false, started = false;
+  function start() {
+    if (started || !fontsReady || !userStarted) return;
+    started = true;
+    measureAll();
+    build(false);
+  }
+  window.addEventListener('resize', function () { if (started) onResize(); });
+  if (!fontsReady) document.fonts.ready.then(function () { fontsReady = true; start(); });
+  document.addEventListener('experience:start', function () { userStarted = true; start(); }, { once: true });
 })();
 </script>
 
@@ -838,21 +880,6 @@
     burst(r.left + r.width / 2, r.top + r.height / 2, count);
   }
 
-  function makeFloaters() {
-    var box = $('floaters');
-    for (var i = 0; i < 16; i++) {
-      var s = document.createElement('span');
-      s.textContent = '❤';
-      s.style.left = (Math.random() * 100) + 'vw';
-      s.style.fontSize = (8 + Math.random() * 14) + 'px';
-      s.style.animationDuration = (10 + Math.random() * 9) + 's';
-      s.style.animationDelay = (-Math.random() * 18) + 's';
-      s.style.setProperty('--dx', (Math.random() * 80 - 40) + 'px');
-      s.style.setProperty('--rot', (Math.random() * 90 - 45) + 'deg');
-      box.appendChild(s);
-    }
-  }
-
   function telegramReady() { return !!(TELEGRAM.token && TELEGRAM.chatId); }
 
   // Form-encoded POST in no-cors mode: a "simple" request, no preflight, delivered even though
@@ -912,6 +939,8 @@
     lastFlee = now;
     if (noBtn.parentNode !== document.body) {
       var r0 = noBtn.getBoundingClientRect();
+      noBtn.parentNode.style.width = r0.width + 'px';
+      noBtn.parentNode.style.height = r0.height + 'px';
       document.body.appendChild(noBtn);
       noBtn.classList.add('runaway');
       noBtn.style.left = r0.left + 'px';
@@ -1123,8 +1152,6 @@
   // ---------- entry ----------
   function open() {
     dock();
-    document.body.classList.add('inviting');
-    makeFloaters();
     overlay.classList.add('show');
     var saved = load();
     if (saved && saved.date && saved.time && saved.activities && (saved.activities.length || (saved.custom || '').trim())) {
@@ -1139,6 +1166,82 @@
   document.addEventListener('heart:ready', function () { setTimeout(open, INVITE_DELAY); }, { once: true });
   window.addEventListener('online', flushPending);
   flushPending();
+})();
+</script>
+<script>
+(function () {
+  'use strict';
+
+  var MUSIC_VOLUME = 0.8;   // 0..1
+  var FADE_IN = 3;          // seconds
+  var MUSIC_START = 0;      // seconds into the track to start from
+
+  var gate = document.getElementById('gate');
+  var audio = document.getElementById('music');
+  var btn = document.getElementById('soundBtn');
+  var ctx = null, gain = null, muted = false, playing = false;
+
+  // Web Audio gain: iOS ignores <audio>.volume, so fades go through a GainNode.
+  function setupGraph() {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC || ctx) return;
+    try {
+      ctx = new AC();
+      var src = ctx.createMediaElementSource(audio);
+      gain = ctx.createGain();
+      gain.gain.value = 0;
+      src.connect(gain);
+      gain.connect(ctx.destination);
+    } catch (e) { ctx = null; gain = null; }
+  }
+
+  function ramp(to, sec) {
+    if (gain && ctx) {
+      var t = ctx.currentTime;
+      gain.gain.cancelScheduledValues(t);
+      gain.gain.setValueAtTime(gain.gain.value, t);
+      gain.gain.linearRampToValueAtTime(to, t + sec);
+    } else {
+      audio.muted = to === 0;
+    }
+  }
+
+  function begin() {
+    if (gate.classList.contains('gone')) return;
+    gate.classList.add('gone');
+    setupGraph();
+    if (ctx && ctx.state === 'suspended') ctx.resume();
+    try { if (MUSIC_START) audio.currentTime = MUSIC_START; } catch (e) {}
+    var p = audio.play();
+    if (p && p.then) {
+      p.then(function () { playing = true; btn.hidden = false; ramp(MUSIC_VOLUME, FADE_IN); },
+             function () { btn.hidden = true; });
+    }
+    document.dispatchEvent(new CustomEvent('experience:start'));
+    setTimeout(function () { gate.remove(); }, 1000);
+  }
+
+  gate.addEventListener('click', begin);
+  gate.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); begin(); }
+  });
+
+  btn.addEventListener('click', function () {
+    muted = !muted;
+    ramp(muted ? 0 : MUSIC_VOLUME, 0.4);
+    btn.textContent = muted ? '🔇' : '🔊';
+    btn.setAttribute('aria-pressed', String(muted));
+  });
+
+  // Pause in background tabs, resume on return.
+  document.addEventListener('visibilitychange', function () {
+    if (!playing) return;
+    if (document.hidden) { audio.pause(); return; }
+    if (ctx && ctx.state === 'suspended') ctx.resume();
+    audio.play().catch(function () {});
+  });
+
+  audio.addEventListener('error', function () { btn.hidden = true; });
 })();
 </script>
 </body>
