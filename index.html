@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>I love you</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #070304;
+    --edge: #ff4a5d;
+    --fill: #e33a4e;
+    --glow: rgba(255, 52, 76, 0.42);
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Noto Sans", sans-serif;
+  }
+  .frame {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #stage {
+    position: relative;
+    width: min(100%, 720px, 90vh);
+    aspect-ratio: 1 / 1;
+  }
+  .heart {
+    position: absolute;
+    inset: 0;
+    transform-origin: 50% 50%;
+  }
+  .heart.beat { animation: heartbeat 1.5s ease-in-out infinite; }
+
+  .w {
+    position: absolute;
+    white-space: nowrap;
+    line-height: 1.2;
+    font-weight: 700;
+    unicode-bidi: isolate;
+    color: var(--fill);
+    text-shadow: 0 0 8px var(--glow);
+    opacity: 0;
+    animation: reveal 1.2s cubic-bezier(.2,.7,.2,1) both;
+  }
+  .w.edge { color: var(--edge); }
+  .w.main {
+    color: var(--edge);
+    text-shadow: 0 0 8px var(--glow);
+    animation-name: reveal, shimmer;
+    animation-duration: 1.2s, 3.2s;
+    animation-timing-function: cubic-bezier(.2,.7,.2,1), ease-in-out;
+    animation-iteration-count: 1, infinite;
+    animation-fill-mode: both, none;
+  }
+
+  @keyframes reveal {
+    0%   { opacity: 0; filter: blur(7px); transform: scale(0.55); }
+    100% { opacity: 1; filter: none;      transform: none; }
+  }
+  @keyframes shimmer {
+    0%, 100% { color: #ff4a5d; text-shadow: 0 0 8px rgba(255, 52, 76, 0.45); }
+    50%      { color: #fff4f6; text-shadow: 0 0 8px rgba(255, 255, 255, 0.5), 0 0 16px rgba(255, 70, 95, 0.45); }
+  }
+  @keyframes heartbeat {
+    0%   { transform: scale(1); }
+    12%  { transform: scale(1.065); }
+    24%  { transform: scale(1); }
+    38%  { transform: scale(1.045); }
+    58%  { transform: scale(1); }
+    100% { transform: scale(1); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .w, .w.main { animation: none; opacity: 1; }
+    .heart.beat { animation: none; }
+  }
+
+  /* ---------- 3D volume ---------- */
+  .scene { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+  .heart.live .w { display: none; }
+  #stage { transform-origin: 50% 0; transition: transform 1.3s cubic-bezier(.2,.7,.2,1); }
+
+  /* ---------- invitation ---------- */
+  :root {
+    --ink: #fff3f4;
+    --muted: rgba(255, 220, 224, 0.62);
+    --line: rgba(255, 74, 93, 0.24);
+    --glass: rgba(14, 3, 6, 0.9);
+    --tile: rgba(255, 255, 255, 0.045);
+    --display: "Unbounded", system-ui, -apple-system, sans-serif;
+  }
+  .invite {
+    position: fixed; inset: 0; z-index: 3;
+    display: flex; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    padding: var(--dock, calc(env(safe-area-inset-top, 0px) + 16px)) 16px calc(env(safe-area-inset-bottom, 0px) + 16px);
+    box-sizing: border-box;
+    opacity: 0; pointer-events: none; transition: opacity 1s ease;
+  }
+  .invite.show { opacity: 1; pointer-events: auto; }
+  .card {
+    margin: auto; width: min(420px, 100%); box-sizing: border-box;
+    background: var(--glass);
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    padding: 28px 20px 22px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.65), 0 0 70px rgba(255, 40, 60, 0.12);
+    text-align: center; color: var(--ink);
+    transform: translateY(18px) scale(0.98);
+    transition: transform 1s cubic-bezier(.2,.7,.2,1);
+  }
+  .invite.show .card { transform: none; }
+  .step { display: none; }
+  .step.active { display: block; animation: stepIn 0.6s cubic-bezier(.2,.7,.2,1) both; }
+  @keyframes stepIn { from { opacity: 0; transform: translateY(10px); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+
+  .card h1 { font-family: var(--display); font-weight: 700; font-size: clamp(21px, 6vw, 27px);
+             line-height: 1.22; margin: 0 0 18px; text-wrap: balance; }
+  .sub { color: var(--muted); font-size: 15px; line-height: 1.45; margin: -6px 0 18px; }
+
+  .actions { display: flex; gap: 12px; justify-content: center; align-items: center; flex-wrap: wrap; }
+  .actions.col { flex-direction: column; align-items: stretch; }
+  .btn {
+    font-family: var(--display); font-weight: 500; font-size: 15px; line-height: 1;
+    padding: 16px 26px; border-radius: 999px; border: 0; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    text-decoration: none; -webkit-tap-highlight-color: transparent; user-select: none;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  }
+  .btn.primary { background: #ff4a5d; color: #fff; box-shadow: 0 10px 28px rgba(255, 52, 76, 0.45); }
+  .btn.primary:active { transform: scale(0.96); }
+  .btn.ghost { background: var(--tile); color: var(--muted); border: 1px solid var(--line); }
+  .btn:focus-visible, .opt:focus-visible, .link:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+  #yesBtn { transition: transform 0.35s cubic-bezier(.2,.8,.2,1.4); }
+  .runaway {
+    position: fixed; z-index: 6; margin: 0;
+    background: rgba(20, 6, 9, 0.92);
+    transition: left 0.38s cubic-bezier(.2,.8,.2,1), top 0.38s cubic-bezier(.2,.8,.2,1);
+  }
+
+  .dotsbar { display: none; justify-content: center; gap: 6px; margin: 0 0 16px; }
+  .dotsbar.on { display: flex; }
+  .dotsbar i { width: 7px; height: 7px; border-radius: 99px; background: rgba(255, 74, 93, 0.28); transition: width 0.4s, background 0.4s; }
+  .dotsbar i.on { background: #ff4a5d; }
+  .dotsbar i.cur { width: 22px; }
+
+  .field { display: block; text-align: left; margin: 0 0 12px; }
+  .field span { display: block; font-size: 13px; color: var(--muted); margin: 0 0 6px 6px; }
+  .field input {
+    width: 100%; box-sizing: border-box; min-height: 54px;
+    background: var(--tile); border: 1px solid var(--line); border-radius: 16px;
+    padding: 14px 16px; color: #fff; font: 500 17px system-ui, -apple-system, sans-serif;
+    color-scheme: dark; -webkit-appearance: none; appearance: none;
+  }
+  .field input:focus { outline: none; border-color: #ff4a5d; box-shadow: 0 0 0 3px rgba(255, 74, 93, 0.25); }
+  .err { color: #ff8a96; font-size: 14px; min-height: 1.3em; margin: 2px 0 10px; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 0 4px; }
+  .opt {
+    background: var(--tile); border: 1px solid var(--line); border-radius: 20px;
+    padding: 18px 8px 14px; color: var(--ink); font: 600 14px system-ui, -apple-system, sans-serif;
+    display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.25s, border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+  }
+  .opt .e { font-size: 36px; line-height: 1; }
+  .opt[aria-pressed="true"] { background: rgba(255, 74, 93, 0.17); border-color: #ff4a5d;
+    box-shadow: 0 0 0 1px #ff4a5d inset, 0 0 24px rgba(255, 52, 76, 0.3); transform: translateY(-2px); }
+
+  .timer { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 2px 0 18px; }
+  .cell { background: var(--tile); border: 1px solid var(--line); border-radius: 16px; padding: 12px 2px 10px; }
+  .cell b { display: block; font: 700 24px/1 var(--display); color: #fff; font-variant-numeric: tabular-nums; }
+  .cell small { display: block; font-size: 11px; color: var(--muted); margin-top: 7px; }
+  .timer-done { grid-column: 1 / -1; font-family: var(--display); font-size: 16px; padding: 14px; }
+  .note { color: var(--muted); font-size: 13px; margin: 14px 0 2px; min-height: 1.2em; }
+  .link { background: none; border: 0; color: var(--muted); font-size: 13px; text-decoration: underline; cursor: pointer; padding: 6px; }
+
+  .floaters { position: fixed; inset: 0; pointer-events: none; z-index: 2; overflow: hidden; display: none; }
+  body.inviting .floaters { display: block; }
+  .floaters span { position: absolute; bottom: -40px; color: #ff4a5d; opacity: 0; animation: floatUp linear infinite; }
+  @keyframes floatUp {
+    0% { transform: translate(0, 0) rotate(0); opacity: 0; }
+    12% { opacity: 0.45; }
+    85% { opacity: 0.25; }
+    100% { transform: translate(var(--dx), -112vh) rotate(var(--rot)); opacity: 0; }
+  }
+  .burst { position: fixed; z-index: 7; pointer-events: none; color: #ff4a5d; line-height: 1; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .step.active { animation: none; }
+    body.inviting .floaters { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+  <div id="stage"><div class="heart" id="heart"></div></div>
+</div>
+
+<div class="floaters" id="floaters" aria-hidden="true"></div>
+
+<div class="invite" id="invite" aria-live="polite">
+  <div class="card" id="card">
+    <div class="dotsbar" id="dotsbar" aria-hidden="true"><i></i><i></i><i></i></div>
+
+    <section class="step" data-step="ask">
+      <h1>Пойдёшь со мной на свидание?</h1>
+      <div class="actions">
+        <button class="btn primary" id="yesBtn" type="button">Да! 😍</button>
+        <button class="btn ghost" id="noBtn" type="button">Нет</button>
+      </div>
+    </section>
+
+    <section class="step" data-step="sure">
+      <h1>Подожди, ты правда сказала «да»?</h1>
+      <div class="actions"><button class="btn primary" id="sureBtn" type="button">Да, да, ДА!</button></div>
+    </section>
+
+    <section class="step" data-step="when">
+      <h1>Когда тебе удобно?</h1>
+      <label class="field"><span>Дата</span><input type="date" id="dateIn"></label>
+      <label class="field"><span>Время</span><input type="time" id="timeIn"></label>
+      <p class="err" id="whenErr" role="alert"></p>
+      <div class="actions"><button class="btn primary" id="whenBtn" type="button">Подтвердить</button></div>
+    </section>
+
+    <section class="step" data-step="what">
+      <h1>Чем займёмся?</h1>
+      <p class="sub">Выбирай, что по душе. Можно несколько</p>
+      <div class="grid" id="grid"></div>
+      <p class="err" id="whatErr" role="alert"></p>
+      <div class="actions"><button class="btn primary" id="whatBtn" type="button">Дальше →</button></div>
+    </section>
+
+    <section class="step" data-step="done">
+      <h1>Ура! Это свидание</h1>
+      <p class="sub" id="doneText"></p>
+      <div class="timer" id="timer"></div>
+      <div class="actions col">
+        <a class="btn primary" id="calBtn" target="_blank" rel="noopener">📅 В календарь</a>
+      </div>
+      <p class="note" id="note"></p>
+      <button class="link" id="resetBtn" type="button">Изменить ответ</button>
+    </section>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // One phrase per language, no repeats.
+  var PHRASES = [
+    "Я тебя люблю", "I love you", "Я тебе кохаю", "Я цябе кахаю", "Je t'aime", "Ich liebe dich",
+    "Te quiero", "Eu te amo", "Ti amo", "Ik hou van jou", "Jag älskar dig", "Jeg elsker deg",
+    "Jeg elsker dig", "Ég elska þig", "Eg elski teg", "Minä rakastan sinua", "Ma armastan sind",
+    "Es tevi mīlu", "Aš tave myliu", "Kocham cię", "Miluji tě", "Ľúbim ťa", "Ljubim te", "Volim te",
+    "Обичам те", "Те сакам", "Te iubesc", "Szeretlek", "Të dua", "Σ' αγαπώ", "Seni seviyorum",
+    "Səni sevirəm", "Мен сені жақсы көремін", "Men seni sevaman", "Мен сени сүйөм", "Мин сине яратам",
+    "Би чамд хайртай", "Ман туро дӯст медорам", "Men seni söýýärin", "Эпĕ сана юратап",
+    "მიყვარხარ", "Ես քեզ սիրում եմ", "אני אוהב אותך", "איך האָב דיך ליב", "أحبك", "دوستت دارم",
+    "مجھے تم سے محبت ہے", "زه تا سره مینه لرم", "Ez ji te hez dikim", "مەن سىزنى ياخشى كۆرىمەن",
+    "मैं तुमसे प्यार करता हूँ", "আমি তোমাকে ভালোবাসি", "ਮੈਂ ਤੈਨੂੰ ਪਿਆਰ ਕਰਦਾ ਹਾਂ", "હું તને પ્રેમ કરું છું",
+    "मी तुझ्यावर प्रेम करतो", "நான் உன்னை காதலிக்கிறேன்", "నేను నిన్ను ప్రేమిస్తున్నాను",
+    "ನಾನು ನಿನ್ನನ್ನು ಪ್ರೀತಿಸುತ್ತೇನೆ", "ഞാൻ നിന്നെ സ്നേഹിക്കുന്നു", "මම ඔයාට ආදරෙයි", "म तिमीलाई माया गर्छु",
+    "ฉันรักเธอ", "ຂ້ອຍຮັກເຈົ້າ", "ខ្ញុំស្រលាញ់អ្នក", "ချစ်တယ်", "Anh yêu em", "我爱你", "愛してる", "사랑해",
+    "Aku cinta kamu", "Saya cintakan awak", "Mahal kita", "Aku tresna marang kowé", "Abdi bogoh ka anjeun",
+    "Gihigugma tika", "Kuv hlub koj", "Nakupenda", "እወድሃለሁ", "Mo nífẹ̀ẹ́ rẹ", "Ngiyakuthanda",
+    "Ek het jou lief", "Ina son ka", "A hụrụ m gị n'anya", "Waan ku jeclahay", "Sin jaalladha",
+    "Tiako ianao", "Ndinokuda", "Ndagukunda", "Nalingi yo", "Dama la nob", "Me dɔ wo", "Ndimakukonda",
+    "Ke a o rata", "Aloha au iā ʻoe", "Kei te aroha au ki a koe", "Ou te alofa ia te oe",
+    "ʻOku ou ʻofa ʻiate koe", "Au domoni iko", "Is breá liom thú", "Tha gaol agam ort",
+    "Rwy'n dy garu di", "Da garout a ran", "Maite zaitut", "T'estimo", "Quérote", "Ech hunn dech gär",
+    "Inħobbok", "Ik hâld fan dy", "Ti tengu caru", "Te amo", "Mi amas vin", "Mwen renmen ou",
+    "Munakuyki", "Rohayhu", "Asavakkit"
+  ];
+  var MAIN = "Я тебя люблю";
+  var SECOND = "I love you";
+  var POOL = PHRASES.filter(function (p) { return p !== MAIN && p !== SECOND; });
+
+  // All timings in seconds.
+  var TIMING = {
+    intro: 0.3,       // Russian word appears
+    introGap: 1.4,    // then English
+    restStart: 3.0,   // the rest of the contour starts
+    outline: 5.5,     // one clockwise lap of the contour
+    fillGap: 0.3,     // pause between contour and fill
+    fill: 5.0,        // top-to-bottom fill
+    reveal: 1.2       // single word reveal duration (matches CSS)
+  };
+
+  // Row font-size tiers: narrow parts of the heart (tips) get smaller rows so the shape stays sharp.
+  var TIERS = [1, 0.75, 0.55, 0.42];
+  var FONT = '-apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Noto Sans", sans-serif';
+  var stage = document.getElementById('stage');
+  var heart = document.getElementById('heart');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var ctx = document.createElement('canvas').getContext('2d');
+  var W1 = {};        // phrase width at font-size 1px
+  var AVG = 0;
+  var seed = (Math.random() * 1e9) | 0;
+  var beatTimer = null, resizeTimer = null, lastW = 0, lastH = 0;
+
+  function measureAll() {
+    // Measure with real DOM text: canvas may pick a different fallback font than the page.
+    var box = document.createElement('div');
+    box.style.cssText = 'position:absolute;left:-100000px;top:0;visibility:hidden;white-space:nowrap;';
+    var spans = PHRASES.map(function (p) {
+      var s = document.createElement('span');
+      s.className = 'w';
+      s.style.cssText = 'position:static;display:inline-block;font-size:100px;animation:none;opacity:1;';
+      s.textContent = p;
+      box.appendChild(s);
+      return s;
+    });
+    document.body.appendChild(box);
+    spans.forEach(function (s, i) { W1[PHRASES[i]] = s.getBoundingClientRect().width / 100 * 1.02; });
+    document.body.removeChild(box);
+    
+    AVG = POOL.reduce(function (s, p) { return s + W1[p]; }, 0) / POOL.length;
+  }
+
+  function rng(a) {
+    return function () {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      var t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  // Heart in unit space (y up): (x² + y² − 1)³ − x²·y³ ≤ 0
+  function insideUnit(x, y) {
+    var a = x * x + y * y - 1;
+    return a * a * a - x * x * y * y * y <= 0;
+  }
+
+  function geometry(W, H) {
+    var s = Math.min(W / 2.4, H / 2.3);
+    var g = { W: W, H: H, s: s, cx: W / 2, cy: H / 2, shift: 0.12, step: Math.max(1, W / 500) };
+    g.ux = function (px) { return (px - g.cx) / s; };
+    g.uy = function (py) { return -(py - g.cy) / s + g.shift; };
+    g.top = g.cy - (1.26 - g.shift) * s;
+    g.bottom = g.cy + (1.0 + g.shift) * s;
+    return g;
+  }
+
+  function rowSegments(g, rc, rowH) {
+    var yT = g.uy(rc - rowH * 0.42), yB = g.uy(rc + rowH * 0.42);
+    var segs = [], start = null;
+    for (var px = 0; px <= g.W; px += g.step) {
+      var x = g.ux(px);
+      var ok = insideUnit(x, yT) && insideUnit(x, yB);
+      if (ok && start === null) start = px;
+      if (!ok && start !== null) { segs.push([start, px - g.step]); start = null; }
+    }
+    if (start !== null) segs.push([start, g.W]);
+    return segs;
+  }
+
+  function layout(g, baseFs) {
+    var rand = rng(seed);
+    var pool = POOL.slice();
+    var rowH = baseFs * 1.42;
+    var gapMin = baseFs * 0.42;
+    var res = { items: [], ranOut: false, mainPlaced: false, rowH: rowH };
+    var tasks = [];
+    var mainTried = false;
+
+    var rh = rowH;
+    for (var py = g.top; py < g.bottom; py += rh) {
+      var fs, segs, rc;
+      for (var ti = 0; ti < TIERS.length; ti++) {
+        fs = baseFs * TIERS[ti] * (0.95 + rand() * 0.1);
+        rh = fs * 1.42;
+        rc = py + rh / 2;
+        segs = rowSegments(g, rc, rh);
+        var widest = segs.reduce(function (m, s) { return Math.max(m, s[1] - s[0]); }, 0);
+        if (widest >= fs * 3.4) break;
+      }
+      for (var i = 0; i < segs.length; i++) {
+        var a = segs[i][0], b = segs[i][1];
+        if (b - a < fs * 1.5) continue;
+        if (!mainTried && a < g.cx && b > g.cx) {
+          // First row under the top notch: the Russian phrase sits exactly at the top center.
+          mainTried = true;
+          var mf = fs * 1.15, mw = W1[MAIN] * mf, sw = W1[SECOND] * fs;
+          var l = g.cx - mw / 2 - gapMin, r = g.cx + mw / 2 + gapMin;
+          if (l >= a && b - r >= sw) {
+            res.items.push({ text: MAIN, fs: mf, left: g.cx - mw / 2, w: mw, rc: rc, top: rc - mf * 0.6, main: true });
+            res.mainPlaced = true;
+            tasks.push({ a: a, b: l, rc: rc, fs: fs, edgeL: true, edgeR: false });
+            tasks.push({ a: r, b: b, rc: rc, fs: fs, forced: SECOND, edgeL: false, edgeR: true });
+            continue;
+          }
+        }
+        tasks.push({ a: a, b: b, rc: rc, fs: fs, edgeL: true, edgeR: true });
+      }
+    }
+
+    // Narrow segments first so short phrases go where only short phrases fit.
+    tasks.sort(function (x, y) { return (x.b - x.a) - (y.b - y.a); });
+
+    function take(rem, fs) {
+      var best = -1, bestW = -1, fits = [];
+      for (var i = 0; i < pool.length; i++) {
+        var w = W1[pool[i]] * fs;
+        if (w <= rem) { fits.push(i); if (w > bestW) { bestW = w; best = i; } }
+      }
+      if (!fits.length) return -1;
+      if (rem < AVG * fs * 2.4) return best;
+      return fits[Math.floor(rand() * fits.length)];
+    }
+
+    tasks.forEach(function (t) {
+      var L = t.b - t.a;
+      var gapMin = t.fs * 0.42;
+      if (L < t.fs * 1.5 && !t.forced) return;
+      var chosen = [], sumW = 0;
+      if (t.forced) { chosen.push(t.forced); sumW += W1[t.forced] * t.fs; }
+      for (;;) {
+        var rem = L - sumW - gapMin * chosen.length;
+        if (rem <= 0) break;
+        var idx = take(rem, t.fs);
+        if (idx < 0) {
+          if (!pool.length && rem > t.fs * 2) res.ranOut = true;
+          break;
+        }
+        var p = pool.splice(idx, 1)[0];
+        chosen.push(p);
+        sumW += W1[p] * t.fs;
+      }
+      var n = chosen.length;
+      if (!n) return;
+      var k = Math.min(1.12, (L - gapMin * (n - 1)) / sumW);   // grow slightly to close leftover space
+      var f = t.fs * k;
+      var widths = chosen.map(function (p) { return W1[p] * f; });
+      var total = widths.reduce(function (s, w) { return s + w; }, 0);
+      var gap = n > 1 ? (L - total) / (n - 1) : 0;
+      var x = n > 1 ? t.a : t.a + (L - total) / 2;
+      chosen.forEach(function (p, i) {
+        res.items.push({
+          text: p, fs: f, left: x, w: widths[i], rc: t.rc, top: t.rc - f * 0.6,
+          second: p === SECOND,
+          segEdge: (i === 0 && t.edgeL) || (i === n - 1 && t.edgeR)
+        });
+        x += widths[i] + gap;
+      });
+    });
+
+    return res;
+  }
+
+  function annotate(g, res) {
+    res.items.forEach(function (it) {
+      var cxw = it.left + it.w / 2;
+      var open = false;
+      [it.left + 2, cxw, it.left + it.w - 2].forEach(function (px) {
+        var x = g.ux(px);
+        var rh = it.fs * 1.42;
+        if (!insideUnit(x, g.uy(it.rc - rh)) || !insideUnit(x, g.uy(it.rc + rh))) open = true;
+      });
+      it.edge = !!(it.main || it.segEdge || open);
+      var ang = Math.atan2(g.ux(cxw), g.uy(it.rc) - 0.25);   // clockwise from straight up
+      it.theta = ang < 0 ? ang + 2 * Math.PI : ang;
+      it.rowFrac = (it.rc - g.top) / (g.bottom - g.top);
+    });
+  }
+
+  // ---------- 3D volume: words drawn into one canvas from pre-rendered sprites ----------
+  var DEPTH = 0.42;       // pillow thickness, heart units
+  var CAM = 3.6;          // camera distance, heart units
+  var SPIN = 0.75;        // rotation speed, rad/s
+  var INFLATE = 1.8;      // seconds for the flat heart to gain volume
+  var SHIMMER = 3.2;      // seconds, red -> white -> red cycle of the main phrase
+  var GLOW = 'rgba(255, 52, 76, 0.42)';
+  var COLORS = { edge: '#ff4a5d', fill: '#e33a4e', main: '#ff4a5d' };
+  var engine = null;
+  var phase = 'intro';
+  var readyFired = false;
+
+  function thicknessAt(x, y) {
+    var a = x * x + y * y - 1;
+    var f = a * a * a - x * x * y * y * y;
+    return f >= 0 ? 0 : DEPTH * Math.cbrt(Math.min(1, -f));
+  }
+
+  function textSprite(text, fs, color, glow, R) {
+    var cv = document.createElement('canvas');
+    var c = cv.getContext('2d');
+    var font = '700 ' + (fs * R).toFixed(2) + 'px ' + FONT;
+    var pad = Math.ceil(10 * R);
+    c.font = font;
+    cv.width = Math.ceil(c.measureText(text).width) + pad * 2;
+    cv.height = Math.ceil(fs * R * 1.4) + pad * 2;
+    c.font = font;
+    c.textAlign = 'center';
+    c.textBaseline = 'middle';
+    c.shadowColor = glow;
+    c.shadowBlur = 8 * R;
+    c.fillStyle = color;
+    c.fillText(text, cv.width / 2, cv.height / 2);
+    return { img: cv, w: cv.width / R, h: cv.height / R };
+  }
+
+  function stopEngine() {
+    if (engine) { cancelAnimationFrame(engine.raf); engine = null; }
+  }
+
+  function startEngine(g, words, instant) {
+    stopEngine();
+    var dpr = Math.min(2, window.devicePixelRatio || 1);
+    var R = dpr * 1.2;   // sprites slightly oversampled: perspective scales words up to ~1.13x
+    var canvas = document.createElement('canvas');
+    canvas.className = 'scene';
+    canvas.width = Math.round(g.W * dpr);
+    canvas.height = Math.round(g.H * dpr);
+    var c2 = canvas.getContext('2d');
+    c2.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    var rand = rng(seed ^ 0x5bd1e995);
+    words.forEach(function (w) {
+      w.t = thicknessAt(w.u, w.v);
+      w.zn = w.main ? 1 : (rand() * 2 - 1) * 0.92;
+      w.spr = textSprite(w.text, w.fs, COLORS[w.kind], GLOW, R);
+      if (w.main) w.alt = textSprite(w.text, w.fs, '#fff4f6', 'rgba(255, 255, 255, 0.5)', R);
+    });
+
+    var total = words.length;
+    engine = {
+      g: g, words: words, ctx: c2,
+      inflate: instant ? 1 : 0, angle: 0, last: 0, raf: 0,
+      data: new Float32Array(total * 4),
+      order: Array.from({ length: total }, function (_, i) { return i; })
+    };
+
+    heart.insertBefore(canvas, heart.firstChild);
+    drawFrame(performance.now());          // paint before the DOM words are hidden: no flash
+    heart.classList.add('live');
+    engine.raf = requestAnimationFrame(frame);
+  }
+
+  function ease(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
+
+  function frame(ts) {
+    if (!engine) return;
+    drawFrame(ts);
+    engine.raf = requestAnimationFrame(frame);
+  }
+
+  function drawFrame(ts) {
+    var e = engine;
+    var dt = e.last ? Math.min(0.05, (ts - e.last) / 1000) : 0;
+    e.last = ts;
+    e.inflate = Math.min(1, e.inflate + dt / INFLATE);
+    var k = ease(e.inflate);
+    e.angle += SPIN * dt * k;
+
+    var g = e.g, s = g.s, D = e.data;
+    var ca = Math.cos(e.angle), sa = Math.sin(e.angle);
+    var tilt = 0.16 * Math.sin(ts / 2600) * k, ct = Math.cos(tilt), st = Math.sin(tilt);
+    var nW = e.words.length;
+
+    function put(i, x, y, z) {
+      var xr = x * ca + z * sa;
+      var z1 = -x * sa + z * ca;
+      var yr = y * ct - z1 * st;
+      var zr = y * st + z1 * ct;
+      var p = CAM / (CAM - zr);
+      var o = i * 4;
+      D[o] = g.cx + xr * s * p;
+      D[o + 1] = g.cy - yr * s * p;
+      D[o + 2] = p;
+      D[o + 3] = Math.max(0, Math.min(1, (zr / DEPTH + 1) / 2));
+    }
+
+    for (var i = 0; i < nW; i++) {
+      var w = e.words[i];
+      put(i, w.u, w.v - g.shift, w.zn * w.t * k);
+    }
+    e.order.sort(function (a, b) { return D[a * 4 + 3] - D[b * 4 + 3]; });
+
+    var c = e.ctx;
+    var sh = (1 - Math.cos(ts / 1000 / SHIMMER * Math.PI * 2)) / 2;
+    c.clearRect(0, 0, g.W, g.H);
+    for (var q = 0; q < e.order.length; q++) {
+      var idx = e.order[q], o = idx * 4;
+      var x = D[o], y = D[o + 1], p = D[o + 2], d = D[o + 3];
+      var wd = e.words[idx];
+        var a = 1 - k + k * (wd.main ? 0.6 + 0.4 * d : 0.3 + 0.7 * d);
+        var sw = wd.spr.w * p, shh = wd.spr.h * p;
+        if (wd.main) {
+          c.globalAlpha = a * (1 - sh);
+          c.drawImage(wd.spr.img, x - sw / 2, y - shh / 2, sw, shh);
+          c.globalAlpha = a * sh;
+          c.drawImage(wd.alt.img, x - sw / 2, y - shh / 2, sw, shh);
+        } else {
+          c.globalAlpha = a;
+          c.drawImage(wd.spr.img, x - sw / 2, y - shh / 2, sw, shh);
+        }
+    }
+    c.globalAlpha = 1;
+  }
+
+  function fireReady() {
+    if (readyFired) return;
+    readyFired = true;
+    document.dispatchEvent(new CustomEvent('heart:ready'));
+  }
+
+  function build(instant) {
+    clearTimeout(beatTimer);
+    stopEngine();
+    heart.classList.remove('beat', 'live');
+    heart.innerHTML = '';
+
+    var W = stage.clientWidth, H = stage.clientHeight;
+    if (!W || !H) return;
+    lastW = W; lastH = H;
+    var g = geometry(W, H);
+
+    // Smallest font size at which every phrase is used at most once and the heart is full.
+    var lo = Math.max(6, g.s * 0.025), hi = g.s * 0.14, best = null;
+    for (var i = 0; i < 18; i++) {
+      var mid = (lo + hi) / 2;
+      var r = layout(g, mid);
+      if (r.ranOut) lo = mid;
+      else if (!r.mainPlaced) hi = mid;
+      else { best = r; hi = mid; }
+    }
+    if (!best) best = layout(g, hi);
+    annotate(g, best);
+
+    var contour = best.items
+      .filter(function (p) { return p.edge && !p.main && !p.second; })
+      .sort(function (a, b) { return a.theta - b.theta; });
+    contour.forEach(function (p, i) { p.rank = i; });
+    var n = contour.length;
+    var T = TIMING;
+    var fillStart = T.restStart + T.outline + T.fillGap;
+    var maxDelay = 0;
+    var animate = !reduce && !instant;
+    var words = [];
+
+    var frag = document.createDocumentFragment();
+    best.items.forEach(function (p) {
+      var el = document.createElement('span');
+      el.className = 'w' + (p.main ? ' main' : (p.edge || p.second ? ' edge' : ''));
+      el.textContent = p.text;
+      el.style.left = p.left.toFixed(1) + 'px';
+      el.style.top = p.top.toFixed(1) + 'px';
+      el.style.fontSize = p.fs.toFixed(2) + 'px';
+
+      if (animate) {
+        var d;
+        if (p.main) d = T.intro;
+        else if (p.second) d = T.intro + T.introGap;
+        else if (p.edge) d = T.restStart + (n > 1 ? p.rank / (n - 1) : 0) * T.outline;
+        else d = fillStart + p.rowFrac * T.fill + Math.random() * 0.4;
+        maxDelay = Math.max(maxDelay, d);
+        el.style.animationDelay = p.main
+          ? d.toFixed(2) + 's, ' + (d + T.reveal).toFixed(2) + 's'
+          : d.toFixed(2) + 's';
+      }
+      frag.appendChild(el);
+      var cxw = p.left + p.w / 2;
+      words.push({
+        u: g.ux(cxw), v: g.uy(p.rc), text: p.text, fs: p.fs, main: !!p.main,
+        kind: p.main ? 'main' : (p.edge || p.second ? 'edge' : 'fill')
+      });
+    });
+    heart.appendChild(frag);
+
+    if (reduce) {
+      phase = 'volume';
+      fireReady();
+      return;
+    }
+    if (instant) {
+      heart.classList.add('beat');
+      startEngine(g, words, true);
+      fireReady();
+      return;
+    }
+    beatTimer = setTimeout(function () {
+      heart.classList.add('beat');
+      phase = 'volume';
+      startEngine(g, words, false);
+      fireReady();
+    }, (maxDelay + T.reveal + 0.2) * 1000);
+  }
+
+  function onResize() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      if (Math.abs(stage.clientWidth - lastW) > 2 || Math.abs(stage.clientHeight - lastH) > 2) {
+        build(phase === 'volume');
+      }
+    }, 200);
+  }
+
+  function start() { measureAll(); build(false); }
+  window.addEventListener('resize', onResize);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(start); else start();
+})();
+</script>
+
+<script>
+(function () {
+  'use strict';
+
+  // ---------- answer delivery (Telegram bot, no server needed) ----------
+  // Fill both fields before sending the link. Setup steps are in the chat.
+  var TELEGRAM = {
+    token: '8637806311:AAFEvveJ6PDXViplocXgHYmboHTaN0EXXoo',     // from @BotFather
+    chatId: '5936156846'     // your chat id
+  };
+  var PENDING_KEY = 'date-invite-pending-v1';
+
+  var STORE_KEY = 'date-invite-v1';
+  var INVITE_DELAY = 5000;   // ms of the spinning heart before the question appears
+  var NO_TEXTS = ['Не хочу', 'Точно нет', 'Подумай ещё 🥺', 'Не-а', 'Ну пожалуйста', 'Мимо!',
+                  'Попробуй ещё', 'Никак 🙈', 'Уверена?', 'Не поймаешь'];
+  var ACTIVITIES = [
+    { id: 'pizza', emoji: '🍕', label: 'Пицца' },
+    { id: 'smoothie', emoji: '🥤', label: 'Смузи' },
+    { id: 'cinema', emoji: '🎬', label: 'Кино' },
+    { id: 'bike', emoji: '🚲', label: 'Велопрогулка' }
+  ];
+  var MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля',
+                'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+  var UNITS = [['день', 'дня', 'дней'], ['час', 'часа', 'часов'],
+               ['минута', 'минуты', 'минут'], ['секунда', 'секунды', 'секунд']];
+  var DOT_STEP = { when: 0, what: 1, done: 2 };
+
+  // Opening the page with ?reset forgets the answer saved in this browser (handy for testing).
+  (function resetFromUrl() {
+    var url = new URL(window.location.href);
+    if (!url.searchParams.has('reset')) return;
+    try { localStorage.removeItem(STORE_KEY); localStorage.removeItem(PENDING_KEY); } catch (e) {}
+    url.searchParams.delete('reset');
+    try { history.replaceState(null, '', url.pathname + url.search + url.hash); } catch (e) {}
+  })();
+
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var $ = function (id) { return document.getElementById(id); };
+  var overlay = $('invite'), stage = $('stage'), dotsbar = $('dotsbar');
+  var sections = Array.prototype.slice.call(document.querySelectorAll('.step'));
+  var yesBtn = $('yesBtn'), noBtn = $('noBtn');
+  var state = { date: '', time: '', activities: [] };
+  var timerId = null, noTries = 0, lastFlee = 0;
+
+  // ---------- storage ----------
+  function load() {
+    try { var raw = localStorage.getItem(STORE_KEY); return raw ? JSON.parse(raw) : null; }
+    catch (e) { return null; }
+  }
+  function save() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); return true; }
+    catch (e) { return false; }
+  }
+
+  // ---------- helpers ----------
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function plural(n, f) {
+    var a = Math.abs(n) % 100, b = a % 10;
+    if (a > 10 && a < 20) return f[2];
+    if (b > 1 && b < 5) return f[1];
+    if (b === 1) return f[0];
+    return f[2];
+  }
+  function joinRu(arr) {
+    return arr.length < 2 ? arr.join('') : arr.slice(0, -1).join(', ') + ' и ' + arr[arr.length - 1];
+  }
+  function targetDate() {
+    var d = state.date.split('-').map(Number), t = state.time.split(':').map(Number);
+    return new Date(d[0], d[1] - 1, d[2], t[0], t[1], 0);
+  }
+  function activityLabels() {
+    return ACTIVITIES.filter(function (a) { return state.activities.indexOf(a.id) >= 0; })
+                     .map(function (a) { return a.label; });
+  }
+  function todayIso() {
+    var n = new Date();
+    return n.getFullYear() + '-' + pad(n.getMonth() + 1) + '-' + pad(n.getDate());
+  }
+
+  function burst(x, y, count) {
+    if (reduce) return;
+    var glyphs = ['❤', '❤', '✦', '♥'];
+    for (var i = 0; i < count; i++) {
+      var el = document.createElement('span');
+      el.className = 'burst';
+      el.textContent = glyphs[i % glyphs.length];
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+      el.style.fontSize = (10 + Math.random() * 16) + 'px';
+      document.body.appendChild(el);
+      var ang = Math.random() * Math.PI * 2, dist = 70 + Math.random() * 160;
+      var anim = el.animate([
+        { transform: 'translate(-50%,-50%) scale(0.4)', opacity: 1 },
+        { transform: 'translate(calc(-50% + ' + Math.cos(ang) * dist + 'px), calc(-50% + ' +
+                     (Math.sin(ang) * dist - 60) + 'px)) scale(1) rotate(' + (Math.random() * 120 - 60) + 'deg)', opacity: 0 }
+      ], { duration: 900 + Math.random() * 700, easing: 'cubic-bezier(.15,.7,.3,1)', fill: 'forwards' });
+      anim.onfinish = (function (node) { return function () { node.remove(); }; })(el);
+    }
+  }
+  function burstFrom(el, count) {
+    var r = el.getBoundingClientRect();
+    burst(r.left + r.width / 2, r.top + r.height / 2, count);
+  }
+
+  function makeFloaters() {
+    var box = $('floaters');
+    for (var i = 0; i < 16; i++) {
+      var s = document.createElement('span');
+      s.textContent = '❤';
+      s.style.left = (Math.random() * 100) + 'vw';
+      s.style.fontSize = (8 + Math.random() * 14) + 'px';
+      s.style.animationDuration = (10 + Math.random() * 9) + 's';
+      s.style.animationDelay = (-Math.random() * 18) + 's';
+      s.style.setProperty('--dx', (Math.random() * 80 - 40) + 'px');
+      s.style.setProperty('--rot', (Math.random() * 90 - 45) + 'deg');
+      box.appendChild(s);
+    }
+  }
+
+  function telegramReady() { return !!(TELEGRAM.token && TELEGRAM.chatId); }
+
+  // Form-encoded POST in no-cors mode: a "simple" request, no preflight, delivered even though
+  // the response is opaque. Resolves true when the request left the device.
+  function sendTelegram(text) {
+    var body = new URLSearchParams({ chat_id: TELEGRAM.chatId, text: text });
+    return fetch('https://api.telegram.org/bot' + TELEGRAM.token + '/sendMessage',
+                 { method: 'POST', mode: 'no-cors', body: body, keepalive: true })
+      .then(function () { return true; }, function () { return false; });
+  }
+
+  // Keeps the message until it is sent, so a dropped connection retries on the next visit.
+  function deliver(text) {
+    if (!telegramReady()) return Promise.resolve(false);
+    try { localStorage.setItem(PENDING_KEY, text); } catch (e) {}
+    return sendTelegram(text).then(function (ok) {
+      if (ok) { try { localStorage.removeItem(PENDING_KEY); } catch (e) {} }
+      return ok;
+    });
+  }
+
+  function flushPending() {
+    var text = null;
+    try { text = localStorage.getItem(PENDING_KEY); } catch (e) {}
+    if (text) deliver(text);
+  }
+
+  function answerMessage(isEdit) {
+    var d = targetDate();
+    var lines = [
+      isEdit ? '✏️ Она изменила ответ' : '💌 Она сказала «да»!',
+      '📅 ' + d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear() + ', ' + pad(d.getHours()) + ':' + pad(d.getMinutes()),
+      '🎯 ' + joinRu(activityLabels())
+    ];
+    if (!isEdit) lines.push('🙈 Пыталась нажать «Нет»: ' + noTries + ' ' + plural(noTries, ['раз', 'раза', 'раз']));
+    return lines.join('\n');
+  }
+
+  // ---------- steps ----------
+  function show(name) {
+    sections.forEach(function (s) { s.classList.toggle('active', s.dataset.step === name); });
+    var di = DOT_STEP[name];
+    dotsbar.classList.toggle('on', di !== undefined);
+    Array.prototype.forEach.call(dotsbar.children, function (dot, i) {
+      dot.classList.toggle('on', di !== undefined && i <= di);
+      dot.classList.toggle('cur', i === di);
+    });
+    if (name !== 'ask' && noBtn.parentNode === document.body) noBtn.remove();
+    if (name === 'done') renderDone(); else stopTimer();
+    overlay.scrollTop = 0;
+  }
+
+  // ---------- step 1: the runaway "no" ----------
+  function flee(px, py) {
+    var now = Date.now();
+    if (now - lastFlee < 250) return;
+    lastFlee = now;
+    if (noBtn.parentNode !== document.body) {
+      var r0 = noBtn.getBoundingClientRect();
+      document.body.appendChild(noBtn);
+      noBtn.classList.add('runaway');
+      noBtn.style.left = r0.left + 'px';
+      noBtn.style.top = r0.top + 'px';
+      void noBtn.offsetWidth;
+    }
+    noBtn.textContent = NO_TEXTS[noTries % NO_TEXTS.length];
+    noTries++;
+
+    var bw = noBtn.offsetWidth, bh = noBtn.offsetHeight;
+    var vw = window.innerWidth, vh = window.innerHeight, m = 16, topM = 56;
+    var yes = yesBtn.getBoundingClientRect();
+    var x = m, y = topM;
+    for (var i = 0; i < 40; i++) {
+      x = m + Math.random() * Math.max(1, vw - bw - 2 * m);
+      y = topM + Math.random() * Math.max(1, vh - bh - topM - m);
+      var hitsYes = x < yes.right + 24 && x + bw > yes.left - 24 && y < yes.bottom + 24 && y + bh > yes.top - 24;
+      var cx = x + bw / 2, cy = y + bh / 2;
+      var farFromFinger = px == null || Math.hypot(cx - px, cy - py) > 140;
+      if (!hitsYes && farFromFinger) break;
+    }
+    noBtn.style.left = x + 'px';
+    noBtn.style.top = y + 'px';
+    yesBtn.style.transform = 'scale(' + Math.min(1.45, 1 + noTries * 0.05).toFixed(2) + ')';
+  }
+
+  noBtn.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') flee(e.clientX, e.clientY); });
+  noBtn.addEventListener('touchstart', function (e) {
+    e.preventDefault();
+    var t = e.touches[0];
+    flee(t ? t.clientX : null, t ? t.clientY : null);
+  }, { passive: false });
+  noBtn.addEventListener('pointerdown', function (e) { e.preventDefault(); flee(e.clientX, e.clientY); });
+  noBtn.addEventListener('click', function (e) { e.preventDefault(); flee(null, null); });
+
+  yesBtn.addEventListener('click', function () {
+    burstFrom(yesBtn, 26);
+    show('sure');
+  });
+
+  // ---------- step 2 ----------
+  $('sureBtn').addEventListener('click', function () {
+    burstFrom($('sureBtn'), 34);
+    show('when');
+  });
+
+  // ---------- step 3: date & time ----------
+  var dateIn = $('dateIn'), timeIn = $('timeIn'), whenErr = $('whenErr');
+  dateIn.min = todayIso();
+  $('whenBtn').addEventListener('click', function () {
+    if (!dateIn.value || !timeIn.value) { whenErr.textContent = 'Выбери дату и время'; return; }
+    state.date = dateIn.value;
+    state.time = timeIn.value;
+    if (targetDate().getTime() <= Date.now()) {
+      whenErr.textContent = 'Это время уже прошло. Выбери что-нибудь впереди 🙂';
+      return;
+    }
+    whenErr.textContent = '';
+    show('what');
+  });
+
+  // ---------- step 4: activities ----------
+  var grid = $('grid'), whatErr = $('whatErr');
+  ACTIVITIES.forEach(function (a) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'opt';
+    b.dataset.id = a.id;
+    b.setAttribute('aria-pressed', 'false');
+    b.innerHTML = '<span class="e" aria-hidden="true">' + a.emoji + '</span><span></span>';
+    b.lastChild.textContent = a.label;
+    b.addEventListener('click', function () {
+      var i = state.activities.indexOf(a.id);
+      if (i >= 0) state.activities.splice(i, 1); else state.activities.push(a.id);
+      b.setAttribute('aria-pressed', String(i < 0));
+      whatErr.textContent = '';
+    });
+    grid.appendChild(b);
+  });
+  function syncGrid() {
+    Array.prototype.forEach.call(grid.children, function (b) {
+      b.setAttribute('aria-pressed', String(state.activities.indexOf(b.dataset.id) >= 0));
+    });
+  }
+  $('whatBtn').addEventListener('click', function () {
+    if (!state.activities.length) { whatErr.textContent = 'Выбери хотя бы что-то одно'; return; }
+    var isEdit = !!load();
+    save();
+    show('done');
+    var note = $('note');
+    note.textContent = 'Ответ сохранён ✓';
+    burst(window.innerWidth / 2, window.innerHeight * 0.3, 48);
+    deliver(answerMessage(isEdit)).then(function (sent) {
+      if (sent) note.textContent = 'Ответ отправлен ✓';
+    });
+  });
+
+  // ---------- step 5: summary ----------
+  function stopTimer() { if (timerId) { clearInterval(timerId); timerId = null; } }
+
+  function renderTimer() {
+    var box = $('timer');
+    var left = Math.floor((targetDate().getTime() - Date.now()) / 1000);
+    if (left <= 0) {
+      box.innerHTML = '<div class="cell timer-done">Наше свидание уже наступило ❤️</div>';
+      stopTimer();
+      return;
+    }
+    var parts = [Math.floor(left / 86400), Math.floor(left % 86400 / 3600), Math.floor(left % 3600 / 60), left % 60];
+    if (box.children.length !== 4) {
+      box.innerHTML = '';
+      for (var i = 0; i < 4; i++) {
+        var c = document.createElement('div');
+        c.className = 'cell';
+        c.innerHTML = '<b></b><small></small>';
+        box.appendChild(c);
+      }
+    }
+    parts.forEach(function (v, i) {
+      box.children[i].firstChild.textContent = String(v);
+      box.children[i].lastChild.textContent = plural(v, UNITS[i]);
+    });
+  }
+
+  function renderDone() {
+    var d = targetDate();
+    var dateText = d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear();
+    var timeText = pad(d.getHours()) + ':' + pad(d.getMinutes());
+    var labels = activityLabels();
+    var whatLower = joinRu(labels.map(function (l) { return l.toLowerCase(); }));
+    $('doneText').textContent = 'Жду тебя ' + dateText + ' в ' + timeText + '. Нас ждёт: ' + whatLower + '.';
+
+    var end = new Date(d.getTime() + 2 * 3600 * 1000);
+    var stamp = function (x) {
+      return x.getFullYear() + pad(x.getMonth() + 1) + pad(x.getDate()) + 'T' + pad(x.getHours()) + pad(x.getMinutes()) + '00';
+    };
+    $('calBtn').href = 'https://calendar.google.com/calendar/render?action=TEMPLATE' +
+      '&text=' + encodeURIComponent('Свидание ❤️') +
+      '&dates=' + stamp(d) + '/' + stamp(end) +
+      '&details=' + encodeURIComponent('Нас ждёт: ' + whatLower);
+
+    stopTimer();
+    renderTimer();
+    timerId = setInterval(renderTimer, 1000);
+  }
+
+  $('resetBtn').addEventListener('click', function () {
+    dateIn.value = state.date;
+    timeIn.value = state.time;
+    syncGrid();
+    show('when');
+  });
+
+  // ---------- heart docking ----------
+  var DOCK_SHARE = 0.36;   // part of the viewport height the heart keeps above the card
+  var DOCK_GAP = 8;        // px between the heart and the card area
+  function dock() {
+    var frame = stage.parentNode.getBoundingClientRect();
+    var size = stage.offsetWidth;
+    if (!size) return;
+    var safeTop = parseFloat(getComputedStyle(document.documentElement).paddingTop) || 0;
+    var target = Math.min(window.innerHeight * DOCK_SHARE, window.innerWidth * 0.92, size);
+    var scale = target / size;
+    var naturalTop = frame.top + (frame.height - stage.offsetHeight) / 2;
+    var top = safeTop + 6;
+    stage.style.transform = 'translateY(' + (top - naturalTop).toFixed(1) + 'px) scale(' + scale.toFixed(4) + ')';
+    overlay.style.setProperty('--dock', (top + target * 0.97 + DOCK_GAP).toFixed(1) + 'px');
+  }
+  var dockTimer = null;
+  window.addEventListener('resize', function () {
+    if (!overlay.classList.contains('show')) return;
+    clearTimeout(dockTimer);
+    dockTimer = setTimeout(dock, 220);
+  });
+
+  // ---------- entry ----------
+  function open() {
+    dock();
+    document.body.classList.add('inviting');
+    makeFloaters();
+    overlay.classList.add('show');
+    var saved = load();
+    if (saved && saved.date && saved.time && saved.activities && saved.activities.length) {
+      state = saved;
+      syncGrid();
+      show('done');
+      $('note').textContent = 'Ответ сохранён ✓';
+    } else {
+      show('ask');
+    }
+  }
+  document.addEventListener('heart:ready', function () { setTimeout(open, INVITE_DELAY); }, { once: true });
+  window.addEventListener('online', flushPending);
+  flushPending();
+})();
+</script>
+</body>
+</html>
