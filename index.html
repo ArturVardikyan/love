@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="hy">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>I love you</title>
+<title>Քո համար</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
@@ -169,13 +169,25 @@
 
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 0 4px; }
   .opt {
-    background: var(--tile); border: 1px solid var(--line); border-radius: 20px;
-    padding: 18px 8px 14px; color: var(--ink); font: 600 14px system-ui, -apple-system, sans-serif;
-    display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
+    background: var(--tile); border: 1px solid var(--line); border-radius: 18px;
+    padding: 11px 12px; color: var(--ink); font: 600 14px system-ui, -apple-system, sans-serif;
+    display: flex; flex-direction: row; align-items: center; gap: 10px; text-align: left; cursor: pointer;
+    min-height: 52px; box-sizing: border-box; -webkit-tap-highlight-color: transparent;
     transition: background 0.25s, border-color 0.25s, transform 0.25s, box-shadow 0.25s;
   }
-  .opt .e { font-size: 36px; line-height: 1; }
+  .opt .e { font-size: 22px; line-height: 1; flex: none; }
+  .opt .t { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .opt .hint { font-size: 11px; font-weight: 600; color: #ff7d8b; }
+  .opt.nudge { animation: nudge 0.5s ease-in-out 2; }
+  @keyframes nudge { 0%, 100% { transform: none; } 25% { transform: translateX(-4px) rotate(-1deg); } 75% { transform: translateX(4px) rotate(1deg); } }
+  .opt.custom { grid-column: 1 / -1; cursor: text; }
+  .opt.custom input {
+    flex: 1; min-width: 0; background: none; border: 0; outline: none; color: #fff;
+    font: 500 16px system-ui, -apple-system, sans-serif; padding: 4px 0;
+  }
+  .opt.custom input::placeholder { color: var(--muted); }
+  .opt.custom.filled { background: rgba(255, 74, 93, 0.17); border-color: #ff4a5d;
+    box-shadow: 0 0 0 1px #ff4a5d inset, 0 0 24px rgba(255, 52, 76, 0.3); }
   .opt[aria-pressed="true"] { background: rgba(255, 74, 93, 0.17); border-color: #ff4a5d;
     box-shadow: 0 0 0 1px #ff4a5d inset, 0 0 24px rgba(255, 52, 76, 0.3); transform: translateY(-2px); }
 
@@ -216,43 +228,43 @@
     <div class="dotsbar" id="dotsbar" aria-hidden="true"><i></i><i></i><i></i></div>
 
     <section class="step" data-step="ask">
-      <h1>Пойдёшь со мной на свидание?</h1>
+      <h1>Գնա՞նք մի տեղ 😏</h1>
       <div class="actions">
-        <button class="btn primary" id="yesBtn" type="button">Да! 😍</button>
-        <button class="btn ghost" id="noBtn" type="button">Нет</button>
+        <button class="btn primary" id="yesBtn" type="button">Այո 😏</button>
+        <button class="btn ghost" id="noBtn" type="button">Ոչ</button>
       </div>
     </section>
 
     <section class="step" data-step="sure">
-      <h1>Подожди, ты правда сказала «да»?</h1>
-      <div class="actions"><button class="btn primary" id="sureBtn" type="button">Да, да, ДА!</button></div>
+      <h1>Ֆսյո էլ հետդարձ չկա 😈</h1>
+      <div class="actions"><button class="btn primary" id="sureBtn" type="button">Ավելի լավ</button></div>
     </section>
 
     <section class="step" data-step="when">
-      <h1>Когда тебе удобно?</h1>
-      <label class="field"><span>Дата</span><input type="date" id="dateIn"></label>
-      <label class="field"><span>Время</span><input type="time" id="timeIn"></label>
+      <h1>Ե՞րբ քեզ գողանամ</h1>
+      <label class="field"><span>Ամսաթիվ</span><input type="date" id="dateIn"></label>
+      <label class="field"><span>Ժամ</span><input type="time" id="timeIn"></label>
       <p class="err" id="whenErr" role="alert"></p>
-      <div class="actions"><button class="btn primary" id="whenBtn" type="button">Подтвердить</button></div>
+      <div class="actions"><button class="btn primary" id="whenBtn" type="button">Գողացի😈</button></div>
     </section>
 
     <section class="step" data-step="what">
-      <h1>Чем займёмся?</h1>
-      <p class="sub">Выбирай, что по душе. Можно несколько</p>
+      <h1>Ի՞նչ անենք 😏</h1>
+      <p class="sub">Ընտրիր, մնացածը անակնկալ կլինի</p>
       <div class="grid" id="grid"></div>
       <p class="err" id="whatErr" role="alert"></p>
-      <div class="actions"><button class="btn primary" id="whatBtn" type="button">Дальше →</button></div>
+      <div class="actions"><button class="btn primary" id="whatBtn" type="button">Առաջ →</button></div>
     </section>
 
     <section class="step" data-step="done">
-      <h1>Ура! Это свидание</h1>
+      <h1>Պայմանավորվեցինք 😈</h1>
       <p class="sub" id="doneText"></p>
       <div class="timer" id="timer"></div>
       <div class="actions col">
-        <a class="btn primary" id="calBtn" target="_blank" rel="noopener">📅 В календарь</a>
+        <a class="btn primary" id="calBtn" target="_blank" rel="noopener">📅 Օրացույցում</a>
       </div>
       <p class="note" id="note"></p>
-      <button class="link" id="resetBtn" type="button">Изменить ответ</button>
+      <button class="link" id="resetBtn" type="button">Փոխել պատասխանը</button>
     </section>
   </div>
 </div>
@@ -261,33 +273,23 @@
 (function () {
   'use strict';
 
-  // One phrase per language, no repeats.
+  // One phrase per language, no repeats. "I like you" family: reads as attraction, crush or warmth.
   var PHRASES = [
-    "Я тебя люблю", "I love you", "Я тебе кохаю", "Я цябе кахаю", "Je t'aime", "Ich liebe dich",
-    "Te quiero", "Eu te amo", "Ti amo", "Ik hou van jou", "Jag älskar dig", "Jeg elsker deg",
-    "Jeg elsker dig", "Ég elska þig", "Eg elski teg", "Minä rakastan sinua", "Ma armastan sind",
-    "Es tevi mīlu", "Aš tave myliu", "Kocham cię", "Miluji tě", "Ľúbim ťa", "Ljubim te", "Volim te",
-    "Обичам те", "Те сакам", "Te iubesc", "Szeretlek", "Të dua", "Σ' αγαπώ", "Seni seviyorum",
-    "Səni sevirəm", "Мен сені жақсы көремін", "Men seni sevaman", "Мен сени сүйөм", "Мин сине яратам",
-    "Би чамд хайртай", "Ман туро дӯст медорам", "Men seni söýýärin", "Эпĕ сана юратап",
-    "მიყვარხარ", "Ես քեզ սիրում եմ", "אני אוהב אותך", "איך האָב דיך ליב", "أحبك", "دوستت دارم",
-    "مجھے تم سے محبت ہے", "زه تا سره مینه لرم", "Ez ji te hez dikim", "مەن سىزنى ياخشى كۆرىمەن",
-    "मैं तुमसे प्यार करता हूँ", "আমি তোমাকে ভালোবাসি", "ਮੈਂ ਤੈਨੂੰ ਪਿਆਰ ਕਰਦਾ ਹਾਂ", "હું તને પ્રેમ કરું છું",
-    "मी तुझ्यावर प्रेम करतो", "நான் உன்னை காதலிக்கிறேன்", "నేను నిన్ను ప్రేమిస్తున్నాను",
-    "ನಾನು ನಿನ್ನನ್ನು ಪ್ರೀತಿಸುತ್ತೇನೆ", "ഞാൻ നിന്നെ സ്നേഹിക്കുന്നു", "මම ඔයාට ආදරෙයි", "म तिमीलाई माया गर्छु",
-    "ฉันรักเธอ", "ຂ້ອຍຮັກເຈົ້າ", "ខ្ញុំស្រលាញ់អ្នក", "ချစ်တယ်", "Anh yêu em", "我爱你", "愛してる", "사랑해",
-    "Aku cinta kamu", "Saya cintakan awak", "Mahal kita", "Aku tresna marang kowé", "Abdi bogoh ka anjeun",
-    "Gihigugma tika", "Kuv hlub koj", "Nakupenda", "እወድሃለሁ", "Mo nífẹ̀ẹ́ rẹ", "Ngiyakuthanda",
-    "Ek het jou lief", "Ina son ka", "A hụrụ m gị n'anya", "Waan ku jeclahay", "Sin jaalladha",
-    "Tiako ianao", "Ndinokuda", "Ndagukunda", "Nalingi yo", "Dama la nob", "Me dɔ wo", "Ndimakukonda",
-    "Ke a o rata", "Aloha au iā ʻoe", "Kei te aroha au ki a koe", "Ou te alofa ia te oe",
-    "ʻOku ou ʻofa ʻiate koe", "Au domoni iko", "Is breá liom thú", "Tha gaol agam ort",
-    "Rwy'n dy garu di", "Da garout a ran", "Maite zaitut", "T'estimo", "Quérote", "Ech hunn dech gär",
-    "Inħobbok", "Ik hâld fan dy", "Ti tengu caru", "Te amo", "Mi amas vin", "Mwen renmen ou",
-    "Munakuyki", "Rohayhu", "Asavakkit"
+    "Մտքիցս դուրս չես գալիս", "I like you", "Ты мне нравишься", "Ти мені подобаєшся",
+    "Ты мне падабаешся", "Tu me plais", "Ich mag dich", "Me gustas", "Gosto de ti",
+    "Mi piaci", "M'agrades", "Gústasme", "Ik vind je leuk", "Ek hou van jou", "Jag gillar dig",
+    "Jeg liker deg", "Jeg kan godt lide dig", "Mér líkar við þig", "Pidän sinusta", "Sa meeldid mulle",
+    "Tu man patīc", "Tu man patinki", "Podobasz mi się", "Líbíš se mi", "Páčiš sa mi", "Všeč si mi",
+    "Sviđaš mi se", "Свиђаш ми се", "Харесвам те", "Ми се допаѓаш", "Îmi placi", "Tetszel nekem",
+    "Μου αρέσεις", "Më pëlqen", "Senden hoşlanıyorum", "Səndən xoşum gəlir", "Сен маған ұнайсың",
+    "Sen menga yoqasan", "Сен мага жагасың", "Чи надад таалагддаг", "მომწონხარ", "את מוצאת חן בעיניי",
+    "تعجبينني", "ازت خوشم میاد", "तुम मुझे पसंद हो", "مجھے تم پسند ہو", "তোমাকে আমার ভালো লাগে",
+    "मलाई तिमी मन पर्छ", "எனக்கு உன்னை பிடிக்கும்", "ฉันชอบเธอ", "Anh thích em", "我喜欢你", "好きだよ",
+    "좋아해", "Aku suka kamu", "Saya suka awak", "Gusto kita", "Vi plaĉas al mi", "Is maith liom thú",
+    "Dw i'n dy hoffi di", "Ech hunn dech gär", "Mihi places"
   ];
-  var MAIN = "Я тебя люблю";
-  var SECOND = "I love you";
+  var MAIN = "Մտքիցս դուրս չես գալիս";
+  var SECOND = "I like you";
   var POOL = PHRASES.filter(function (p) { return p !== MAIN && p !== SECOND; });
 
   // All timings in seconds.
@@ -396,9 +398,12 @@
         if (!mainTried && a < g.cx && b > g.cx) {
           // First row under the top notch: the Russian phrase sits exactly at the top center.
           mainTried = true;
-          var mf = fs * 1.15, mw = W1[MAIN] * mf, sw = W1[SECOND] * fs;
+          var sw = W1[SECOND] * fs;
+          var room = Math.min(g.cx - a, b - g.cx) - gapMin - sw;      // half-width left for the centre phrase
+          var mf = Math.min(fs * 1.1, (2 * room) / W1[MAIN]);
+          var mw = W1[MAIN] * mf;
           var l = g.cx - mw / 2 - gapMin, r = g.cx + mw / 2 + gapMin;
-          if (l >= a && b - r >= sw) {
+          if (mf >= fs * 0.75 && l >= a && b - r >= sw) {
             res.items.push({ text: MAIN, fs: mf, left: g.cx - mw / 2, w: mw, rc: rc, top: rc - mf * 0.6, main: true });
             res.mainPlaced = true;
             tasks.push({ a: a, b: l, rc: rc, fs: fs, edgeL: true, edgeR: false });
@@ -727,22 +732,27 @@
     token: '8637806311:AAFEvveJ6PDXViplocXgHYmboHTaN0EXXoo',     // from @BotFather
     chatId: '5936156846'     // your chat id
   };
-  var PENDING_KEY = 'date-invite-pending-v1';
+  var PENDING_KEY = 'date-invite-pending-v2';
 
-  var STORE_KEY = 'date-invite-v1';
+  var STORE_KEY = 'date-invite-v2';
   var INVITE_DELAY = 5000;   // ms of the spinning heart before the question appears
-  var NO_TEXTS = ['Не хочу', 'Точно нет', 'Подумай ещё 🥺', 'Не-а', 'Ну пожалуйста', 'Мимо!',
-                  'Попробуй ещё', 'Никак 🙈', 'Уверена?', 'Не поймаешь'];
+  var NO_TEXTS = ['Դաժը նի դումայ😊', 'Չես կարա😈', 'Դիմադրությունն անիմաստա', 'Բայց դու էլ ես ուզում',
+                  'Թող հանգիստ էդ կնոպկեն', 'Հըլը մի հատ էլ փորձի😏', 'Չեղավ)))', 'Մյուսը սեխմի',
+                  'Թարգի մյատ', 'Ասում եմ թարգի'];
   var ACTIVITIES = [
-    { id: 'pizza', emoji: '🍕', label: 'Пицца' },
-    { id: 'smoothie', emoji: '🥤', label: 'Смузи' },
-    { id: 'cinema', emoji: '🎬', label: 'Кино' },
-    { id: 'bike', emoji: '🚲', label: 'Велопрогулка' }
+    { id: 'cocktails', emoji: '🍸', label: 'Կոկտեյլներ' },
+    { id: 'dance', emoji: '💃', label: 'Պար', hint: 'պարտադիր վերցրու 😏' },
+    { id: 'karaoke', emoji: '🎤', label: 'Կարաոկե' },
+    { id: 'dinner', emoji: '🍷', label: 'Ընթրիք' },
+    { id: 'night', emoji: '🌙', label: 'Գիշերային զբոսանք' },
+    { id: 'cinema', emoji: '🎬', label: 'Կինո' }
   ];
-  var MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля',
-                'августа', 'сентября', 'октября', 'ноября', 'декабря'];
-  var UNITS = [['день', 'дня', 'дней'], ['час', 'часа', 'часов'],
-               ['минута', 'минуты', 'минут'], ['секунда', 'секунды', 'секунд']];
+  // Page copy is Armenian; the Telegram report to the sender stays Russian.
+  var MONTHS_HY = ['հունվարի', 'փետրվարի', 'մարտի', 'ապրիլի', 'մայիսի', 'հունիսի', 'հուլիսի',
+                   'օգոստոսի', 'սեպտեմբերի', 'հոկտեմբերի', 'նոյեմբերի', 'դեկտեմբերի'];
+  var MONTHS_RU = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля',
+                   'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+  var UNITS_HY = ['օր', 'ժամ', 'րոպե', 'վայրկյան'];   // Armenian keeps the singular after a number
   var DOT_STEP = { when: 0, what: 1, done: 2 };
 
   // Opening the page with ?reset forgets the answer saved in this browser (handy for testing).
@@ -759,7 +769,7 @@
   var overlay = $('invite'), stage = $('stage'), dotsbar = $('dotsbar');
   var sections = Array.prototype.slice.call(document.querySelectorAll('.step'));
   var yesBtn = $('yesBtn'), noBtn = $('noBtn');
-  var state = { date: '', time: '', activities: [] };
+  var state = { date: '', time: '', activities: [], custom: '' };
   var timerId = null, noTries = 0, lastFlee = 0;
 
   // ---------- storage ----------
@@ -781,16 +791,22 @@
     if (b === 1) return f[0];
     return f[2];
   }
-  function joinRu(arr) {
-    return arr.length < 2 ? arr.join('') : arr.slice(0, -1).join(', ') + ' и ' + arr[arr.length - 1];
+  function joinWith(arr, and) {
+    return arr.length < 2 ? arr.join('') : arr.slice(0, -1).join(', ') + ' ' + and + ' ' + arr[arr.length - 1];
   }
+  function joinRu(arr) { return joinWith(arr, 'и'); }
+  function joinHy(arr) { return joinWith(arr, 'և'); }
   function targetDate() {
     var d = state.date.split('-').map(Number), t = state.time.split(':').map(Number);
     return new Date(d[0], d[1] - 1, d[2], t[0], t[1], 0);
   }
-  function activityLabels() {
-    return ACTIVITIES.filter(function (a) { return state.activities.indexOf(a.id) >= 0; })
-                     .map(function (a) { return a.label; });
+  // Preset labels can be lowercased for a sentence; her own wording is kept exactly as typed.
+  function activityLabels(lower) {
+    var out = ACTIVITIES.filter(function (a) { return state.activities.indexOf(a.id) >= 0; })
+                        .map(function (a) { return lower ? a.label.toLowerCase() : a.label; });
+    var own = (state.custom || '').trim();
+    if (own) out.push(own);
+    return out;
   }
   function todayIso() {
     var n = new Date();
@@ -867,8 +883,8 @@
   function answerMessage(isEdit) {
     var d = targetDate();
     var lines = [
-      isEdit ? '✏️ Она изменила ответ' : '💌 Она сказала «да»!',
-      '📅 ' + d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear() + ', ' + pad(d.getHours()) + ':' + pad(d.getMinutes()),
+      isEdit ? '✏️ Она поменяла планы' : '🔥 Она согласна!',
+      '📅 ' + d.getDate() + ' ' + MONTHS_RU[d.getMonth()] + ' ' + d.getFullYear() + ', ' + pad(d.getHours()) + ':' + pad(d.getMinutes()),
       '🎯 ' + joinRu(activityLabels())
     ];
     if (!isEdit) lines.push('🙈 Пыталась нажать «Нет»: ' + noTries + ' ' + plural(noTries, ['раз', 'раза', 'раз']));
@@ -946,11 +962,11 @@
   var dateIn = $('dateIn'), timeIn = $('timeIn'), whenErr = $('whenErr');
   dateIn.min = todayIso();
   $('whenBtn').addEventListener('click', function () {
-    if (!dateIn.value || !timeIn.value) { whenErr.textContent = 'Выбери дату и время'; return; }
+    if (!dateIn.value || !timeIn.value) { whenErr.textContent = 'Ընտրիր ամսաթիվն ու ժամը'; return; }
     state.date = dateIn.value;
     state.time = timeIn.value;
     if (targetDate().getTime() <= Date.now()) {
-      whenErr.textContent = 'Это время уже прошло. Выбери что-нибудь впереди 🙂';
+      whenErr.textContent = 'Էդ ժամն անցելա խոսկի 🙂🙂🙂🙂🙂';
       return;
     }
     whenErr.textContent = '';
@@ -965,8 +981,14 @@
     b.className = 'opt';
     b.dataset.id = a.id;
     b.setAttribute('aria-pressed', 'false');
-    b.innerHTML = '<span class="e" aria-hidden="true">' + a.emoji + '</span><span></span>';
-    b.lastChild.textContent = a.label;
+    b.innerHTML = '<span class="e" aria-hidden="true">' + a.emoji + '</span><span class="t"><span></span></span>';
+    b.lastChild.firstChild.textContent = a.label;
+    if (a.hint) {
+      var h = document.createElement('span');
+      h.className = 'hint';
+      h.textContent = a.hint;
+      b.lastChild.appendChild(h);
+    }
     b.addEventListener('click', function () {
       var i = state.activities.indexOf(a.id);
       if (i >= 0) state.activities.splice(i, 1); else state.activities.push(a.id);
@@ -975,21 +997,49 @@
     });
     grid.appendChild(b);
   });
+
+  // Her own option: a full-width tile with a text field.
+  var custom = document.createElement('label');
+  custom.className = 'opt custom';
+  custom.innerHTML = '<span class="e" aria-hidden="true">✍️</span><input type="text" maxlength="40" placeholder="Քո տարբերակը" enterkeyhint="done">';
+  var customIn = custom.querySelector('input');
+  customIn.addEventListener('input', function () {
+    state.custom = customIn.value;
+    custom.classList.toggle('filled', !!customIn.value.trim());
+    whatErr.textContent = '';
+  });
+  customIn.addEventListener('keydown', function (e) { if (e.key === 'Enter') customIn.blur(); });
+  grid.appendChild(custom);
+
   function syncGrid() {
-    Array.prototype.forEach.call(grid.children, function (b) {
+    Array.prototype.forEach.call(grid.querySelectorAll('button.opt'), function (b) {
       b.setAttribute('aria-pressed', String(state.activities.indexOf(b.dataset.id) >= 0));
     });
+    customIn.value = state.custom || '';
+    custom.classList.toggle('filled', !!customIn.value.trim());
   }
+
+  var danceNudged = false;
   $('whatBtn').addEventListener('click', function () {
-    if (!state.activities.length) { whatErr.textContent = 'Выбери хотя бы что-то одно'; return; }
+    if (!activityLabels().length) { whatErr.textContent = 'Ընտրիր գոնե մեկը'; return; }
+    // One playful nudge if dancing was skipped; the second tap goes through.
+    if (state.activities.indexOf('dance') < 0 && !danceNudged) {
+      danceNudged = true;
+      whatErr.textContent = 'Իսկ պա՞րը։ Ես քո տեղը կվերցնեի 😏';
+      var danceTile = grid.querySelector('[data-id="dance"]');
+      danceTile.classList.remove('nudge');
+      void danceTile.offsetWidth;
+      danceTile.classList.add('nudge');
+      return;
+    }
     var isEdit = !!load();
     save();
     show('done');
     var note = $('note');
-    note.textContent = 'Ответ сохранён ✓';
+    note.textContent = 'Պատասխանը պահպանված է ✓';
     burst(window.innerWidth / 2, window.innerHeight * 0.3, 48);
     deliver(answerMessage(isEdit)).then(function (sent) {
-      if (sent) note.textContent = 'Ответ отправлен ✓';
+      if (sent) note.textContent = 'Պատասխանն ուղարկված է ✓';
     });
   });
 
@@ -1000,7 +1050,7 @@
     var box = $('timer');
     var left = Math.floor((targetDate().getTime() - Date.now()) / 1000);
     if (left <= 0) {
-      box.innerHTML = '<div class="cell timer-done">Наше свидание уже наступило ❤️</div>';
+      box.innerHTML = '<div class="cell timer-done">Ժամանակն է 😈</div>';
       stopTimer();
       return;
     }
@@ -1016,26 +1066,25 @@
     }
     parts.forEach(function (v, i) {
       box.children[i].firstChild.textContent = String(v);
-      box.children[i].lastChild.textContent = plural(v, UNITS[i]);
+      box.children[i].lastChild.textContent = UNITS_HY[i];
     });
   }
 
   function renderDone() {
     var d = targetDate();
-    var dateText = d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear();
     var timeText = pad(d.getHours()) + ':' + pad(d.getMinutes());
-    var labels = activityLabels();
-    var whatLower = joinRu(labels.map(function (l) { return l.toLowerCase(); }));
-    $('doneText').textContent = 'Жду тебя ' + dateText + ' в ' + timeText + '. Нас ждёт: ' + whatLower + '.';
+    var whatLower = joinHy(activityLabels(true));
+    var shortDate = MONTHS_HY[d.getMonth()] + ' ' + d.getDate() + '-ին';
+    $('doneText').textContent = 'Կգամ քո հետևից ' + shortDate + ', ժամը ' + timeText + '-ին։ Ծրագրում՝ ' + whatLower + '։';
 
     var end = new Date(d.getTime() + 2 * 3600 * 1000);
     var stamp = function (x) {
       return x.getFullYear() + pad(x.getMonth() + 1) + pad(x.getDate()) + 'T' + pad(x.getHours()) + pad(x.getMinutes()) + '00';
     };
     $('calBtn').href = 'https://calendar.google.com/calendar/render?action=TEMPLATE' +
-      '&text=' + encodeURIComponent('Свидание ❤️') +
+      '&text=' + encodeURIComponent('Հանդիպում 🔥') +
       '&dates=' + stamp(d) + '/' + stamp(end) +
-      '&details=' + encodeURIComponent('Нас ждёт: ' + whatLower);
+      '&details=' + encodeURIComponent('Ծրագրում՝ ' + whatLower);
 
     stopTimer();
     renderTimer();
@@ -1078,11 +1127,11 @@
     makeFloaters();
     overlay.classList.add('show');
     var saved = load();
-    if (saved && saved.date && saved.time && saved.activities && saved.activities.length) {
+    if (saved && saved.date && saved.time && saved.activities && (saved.activities.length || (saved.custom || '').trim())) {
       state = saved;
       syncGrid();
       show('done');
-      $('note').textContent = 'Ответ сохранён ✓';
+      $('note').textContent = 'Պատասխանը պահպանված է ✓';
     } else {
       show('ask');
     }
